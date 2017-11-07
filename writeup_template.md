@@ -24,7 +24,7 @@ The goals / steps of this project are the following:
 [image7]: ./output_images/undistorted_image.png "Undistorted"
 [image3]: ./output_images/threshold_image.png "Binary Example"
 [image4]: ./output_images/perspective_transform_image.png "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
+[image5]: ./output_images/lane_lines.png "Fit Visual"
 [image6]: ./output_images/final.png "Output"
 [video1]: ./project_video_output.mp4 "Video"
 
