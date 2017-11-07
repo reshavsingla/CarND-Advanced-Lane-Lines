@@ -56,14 +56,17 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+I used the `undistort_image()` contained in the 2nd code cell of the notebook to undistort the following image 
 ![alt text][image2]
+
+here is the result
+![alt text][image7]
 
 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image.  Here's an example of my output for this step. 
+I used a combination of color and gradient thresholds to generate a binary image.The `transformations()` in the 3rd code cell is used to create a binary image.Here's an example of my output for this step. 
 
 ![alt text][image3]
 
@@ -86,23 +89,38 @@ This resulted in the following source and destination points:
 | 710, 460      | 1030, 0       |
 | 1070, 690     | 1030, 720     |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
 ![alt text][image4]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+The functions `lane_boundary()` and `polyfit_using_prev_fit()`, which identify lane lines and fit a second order polynomial to both right and left lane lines, are in 5th and 6th code cell of the Jupyter notebook. The first of these computes a histogram of the bottom half of the image and finds the bottom-most x position (or "base") of the left and right lane lines. Originally these locations were identified from the local maxima of the left and right halves of the histogram. The function then identifies 9 windows from which to identify lane pixels, each one centered on the midpoint of the pixels from the window below. This effectively "follows" the lane lines up to the top of the binary image, and speeds processing by only searching for activated pixels over a small portion of the image. Pixels belonging to each lane line are identified and the Numpy `polyfit()` method fits a second order polynomial to each set of pixels.
+
 
 ![alt text][image5]
 
+The `polyfit_using_prev_fit()` function performs basically the same task, but alleviates much difficulty of the search process by leveraging a previous fit (from a previous video frame, for example) and only searching for lane pixels within a certain range of that fit. Pixels belonging to each lane line are identified and the Numpy `polyfit()` method fits a second order polynomial to each set of pixels.
+
+
+
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+I did this in the function `draw_lane_boundaries()` in the 7th code cell.
+```
+    left_curverad = ((1 + (2*left_fit_cr[0]*y_eval*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
+```
+and position of vehicle is calculated using 
+```
+    middle = (left_fitx[-1] + right_fitx[-1])//2
+    veh_pos = image.shape[1]//2
+    xm_per_pix = 3.7/700 # meters per pixel in x dimension
+    dx = (veh_pos - middle)*xm_per_pix # Positive on right, Negative on left
+
+```
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I implemented this step in `draw_lane_boundaries()` in the 7th code cell.  Here is an example of my result on a test image:
 
 ![alt text][image6]
 
@@ -120,4 +138,6 @@ Here's a [link to my video result](./project_video_output.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+The problems I faced were mostly due to diffrent lightning conditions, different lane colors and marks on the roads and shadows on the lanes and road. 
+
+The pipeline is having trouble where lane color is not very different from the road. Also the perspective transform needs to be made robust to capture better viewing area specially in case of sharp turns.
